@@ -1,0 +1,46 @@
+---
+title: "R Notebook For R Markdown: The Definitive Guide"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Preface
+This notebook is a self-guide book referencing "R  Markdown: The Definitive Guide", no commercial use, only for learning.
+
+All the codes and resources are all from "https://bookdown.org/yihui/rmarkdown/", Any infringement does so at his own risk.
+
+Notes: 
+
+(1) Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+(2) Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+(3) When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+
+## Chapter 1: Installation
+
+Install the rmarkdown package in R:
+```{r}
+#install.packages('rmarkdown')
+library(rmarkdown)
+```
+
+If you want to generate PDF output, you will need to install LaTeX. For R Markdown users who have not installed LaTeX before, we recommend that you install TinyTeX.
+```{r}
+install.packages('tinytex')
+tinytex::install_tinytex()  # install TinyTeX
+```
+
+
+
+
+
+
+
+
+
+
+
+

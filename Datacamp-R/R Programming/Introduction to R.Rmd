@@ -1,0 +1,279 @@
+---
+title: "R Programming Skill Track I"
+author: "Wenxiao Zhou"
+date: "5/27/2021"
+output: html_document
+---
+
+# Intro to basics
+
+(1)Arithmetic with R
+
+In its most basic form, R can be used as a simple calculator. Consider the following arithmetic operators:
+
+Addition: + \
+Subtraction: - \
+Multiplication: * \
+Division: / \
+Exponentiation: ^ \
+Modulo: %%(整除/取模) \
+
+(2)Basic data types in R
+
+R works with numerous data types. Some of the most basic types to get started are:
+
+Decimal values like 4.5 are called **numerics**. \
+Whole numbers like 4 are called **integers**. Integers are also numerics. \
+Boolean values (TRUE or FALSE) are called **logical**. \
+Text (or string) values are called **characters**. 
+
+
+(3)Check the data type: `class(variable_name)`
+
+
+# Vectors
+
+(1)Create a vector: use function `c()`
+```{r}
+numeric_vector <- c(1, 2, 3)
+character_vector <- c("a", "b", "c")
+boolean_vector<-c(TRUE,FALSE,TRUE)
+```
+
+Naming a vector: `names(variable_name)<-c(...)`
+```{r}
+# Poker winnings from Monday to Friday
+poker_vector <- c(140, -50, 20, -120, 240)
+
+# Roulette winnings from Monday to Friday
+roulette_vector <- c(-24, -50, 100, -350, 10)
+
+# The variable days_vector
+days_vector <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+ 
+# Assign the names of the day to roulette_vector and poker_vector
+names(poker_vector) <- days_vector  
+names(roulette_vector) <-days_vector
+```
+
+(2)Vector Selection: 
+
+`vector_name[i]`,i can be a vector, e.g. `poker_vector[c(1,5)]` or `poker_vector[2:4]` \
+Another way to use is call the names of the vector elements:
+```{r}
+# Poker and roulette winnings from Monday to Friday:
+poker_vector <- c(140, -50, 20, -120, 240)
+roulette_vector <- c(-24, -50, 100, -350, 10)
+days_vector <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+names(poker_vector) <- days_vector
+names(roulette_vector) <- days_vector
+
+# Select poker results for Monday, Tuesday and Wednesday
+poker_start <- poker_vector[c("Monday","Tuesday","Wednesday")]
+# Calculate the average of the elements in poker_start
+mean(poker_start)
+```
+
+
+# Matrix
+
+(1)In R, a matrix is a collection of elements of the same data type (numeric, character, or logical) arranged into a fixed number of rows and columns. Since you are only working with rows and columns, a matrix is called two-dimensional.
+
+`matrix(data = NA, nrow = 1, ncol = 1, byrow = FALSE,dimnames = NULL)` \
+`as.matrix(x, …)` \
+`as.matrix(x, rownames.force = NA, …)` \
+`is.matrix(x)` \
+
+(2)Naming a matrix:
+`rownames(my_matrix) <- row_names_vector` \
+`colnames(my_matrix) <- col_names_vector `
+
+(3)colSums: Form Row and Column Sums and Means
+```
+colSums (x, na.rm = FALSE, dims = 1)
+rowSums (x, na.rm = FALSE, dims = 1)
+colMeans(x, na.rm = FALSE, dims = 1)
+rowMeans(x, na.rm = FALSE, dims = 1)
+.colSums(x, m, n, na.rm = FALSE)
+.rowSums(x, m, n, na.rm = FALSE)
+.colMeans(x, m, n, na.rm = FALSE)
+.rowMeans(x, m, n, na.rm = FALSE)
+```
+
+(4)Adding a column for the matrix: `cbind()`
+Adding a row for the matrix: `rbind()`
+Return the names of the objects in a matrix: `ls()`
+
+
+(5)Selection of matrix elements use the square brackets `[]` \
+matrix multiplication: 
+
+`my_matrix1 * my_matrix2` creates a matrix where each element is the product of the corresponding elements in `my_matrix1` and `my_matrix2`
+
+**Those who are familiar with matrices should note that this is not the standard matrix multiplication for which you should use `%*%` in R.**
+
+
+# Factors
+
+(1)Definitions:
+
+The term factor refers to a statistical data type used to store categorical variables. The difference between a categorical variable and a continuous variable is that a categorical variable can belong to a limited number of categories. A continuous variable, on the other hand, can correspond to an infinite number of values.
+
+**Distinguish the differences between character variables and factor variables**
+```{r}
+# Sex vector
+sex_vector <- c("Male", "Female", "Female", "Male", "Male")
+# Convert sex_vector to a factor
+factor_sex_vector <-factor(sex_vector)
+factor_sex_vector
+```
+
+In some cases, ordinal variables are more reliable on factor definition:
+
+```
+factor(some_vector,
+       ordered = TRUE,
+       levels = c("lev1", "lev2" ...))
+``` \
+```{r}
+# Animals
+animals_vector <- c("Elephant", "Giraffe", "Donkey", "Horse")
+factor_animals_vector <- factor(animals_vector)
+factor_animals_vector
+
+# Temperature
+temperature_vector <- c("High", "Low", "High","Low", "Medium")
+factor_temperature_vector <- factor(temperature_vector, order = TRUE, levels = c("Low", "Medium", "High"))
+factor_temperature_vector
+```
+
+
+(2)Factor Levels: `levels()` helps to change the names of the factor levels for clarity or other reasons: \
+`levels(factor_vector) <- c("name1", "name2",...)`
+
+**注意顺序按照字母排序设定levels**
+```{r}
+# Code to build factor_survey_vector
+survey_vector <- c("M", "F", "F", "M", "M")
+factor_survey_vector <- factor(survey_vector)
+
+# Specify the levels of factor_survey_vector
+levels(factor_survey_vector) <-c("Female","Male")
+factor_survey_vector
+```
+
+
+(3)Summarizing a factor: `summary()` provides a quick overview of the contents of a variable.
+
+(4)Comparing ordered factors:
+```{r}
+# Create factor_speed_vector
+speed_vector <- c("medium", "slow", "slow", "medium", "fast")
+factor_speed_vector <- factor(speed_vector, ordered = TRUE, levels = c("slow", "medium", "fast"))
+
+# Factor value for second data analyst
+da2 <-factor_speed_vector[2]
+# Factor value for fifth data analyst
+da5 <-factor_speed_vector[5]
+
+# Is data analyst 2 faster than data analyst 5?
+da2>da5
+```
+
+
+# Data Frames
+
+A data frame has the variables of a data set as columns and the observations as rows. This will be a familiar concept for those coming from different statistical software packages such as SAS or SPSS.
+
+(1)Have a quick look at the data set: `head()`,`tail()` functions\
+Look at the structure of the data set: `str()`
+
+(2)Creating a data frame: `data.frame()`
+Selection of data frame elements: `[]`, if the columns have names, you can use the `$` sign.
+
+(3)Select a subset from a data frame: `subset()` function, `subset(my_df,subset=some_condition)`
+
+(4)Sorting: `order()` is a function that gives you the ranked position of each element when it is applied on a variable
+```{r}
+a <- c(100, 10, 1000)
+order(a)
+a[order(a)]
+```
+
+```
+# planets_df is pre-loaded in your workspace
+planets_df
+# Use order() to create positions
+positions <-  order(planets_df$diameter)
+# Use positions to sort planets_df
+planets_df[positions,]
+```
+
+
+# Lists
+
+(1)Definiton:
+
+A list in R allows you to gather a variety of objects under one name (that is, the name of the list) in an ordered way. These objects can be matrices, vectors, data frames, even other lists, etc. It is not even required that these objects are related to each other in any way.
+
+`my_list<-list(comp1,comp2,...)`, the arguments to the list function are the list components, these components can be matrices, vectors, other lists,...
+
+`my_list<-list(name1=comp1,name2=comp2,...) can define the names of the every component. Another way is by using `names()` function:
+
+```
+my_list <- list(your_comp1, your_comp2)
+names(my_list) <- c("name1", "name2")
+```
+
+(2)Selecting elements from a list: `list_name[[i]]`, **remember that to select elements from vectors by using single square bracket `[]`**
+
+You can also refer to the names of the components, with `[[ ]]` or with the `$` sign. Both will select the data frame representing the reviews: \
+```
+shining_list[["reviews"]]
+shining_list$reviews
+```
+
+Besides selecting components, you often need to select specific elements out of these components. For example, with `shining_list[[2]][1]` you select from the second component, actors (`shining_list[[2]]`), the first element (`[1]`)
+
+```
+# Use the table from the exercise to define the comments and scores vectors
+scores <- c(4.6, 5, 4.8, 5, 4.2)
+comments <- c("I would watch it again", "Amazing!", "I liked it", "One of the best movies", "Fascinating plot")
+
+# Save the average of the scores vector as avg_review  
+avg_review<-mean(scores)
+
+# Combine scores and comments into the reviews_df data frame
+reviews_df<-data.frame(scores,comments)
+
+# Create and print out a list, called departed_list
+departed_list<-list(movie_title,movie_actors,reviews_df,avg_review)
+departed_list
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

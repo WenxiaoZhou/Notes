@@ -6,13 +6,91 @@ output: html_document
 ---
 
 # Importing data from flat files with utils
+(1)read.csv()
 
+print the structure of the dataset: `str()`
+```{r}
+setwd("/Users/zhouwenxiao/Desktop/Datacamp-R/Importing & Cleaning Data with R/Data for Introduction")
+pools <- read.csv("swimming_pools.csv", stringsAsFactors = TRUE)
+str(pools)
+```
 
+(2)read.delim()
 
+```
+Import the data in "hotdogs.txt" with read.delim(). Call the resulting data frame hotdogs. The variable names are not on the first line, so make sure to set the header argument appropriately.
+Call summary() on hotdogs. This will print out some summary statistics about all variables in the data frame.
+```
+```{r}
+# Path to the hotdogs.txt file: path
+path <- file.path("/Users/zhouwenxiao/Desktop/Datacamp-R/Importing & Cleaning Data with R/Data for Introduction", "hotdogs.txt")
+hotdogs <- read.table(path, 
+                      sep = "\t", 
+                      col.names = c("type", "calories", "sodium"))
+head(hotdogs)
+```
 
+(3)Arguments:
+```
+Lily wants to have the one with the fewest calories while Tom wants to have the one with the most sodium.
 
+Instructions:
+Finish the read.delim() call to import the data in "hotdogs.txt". It's a tab-delimited file without names in the first row.
+The code that selects the observation with the lowest calorie count and stores it in the variable lily is already available. It uses the function which.min(), that returns the index the smallest value in a vector.
+Do a similar thing for Tom: select the observation with the most sodium and store it in tom. Use which.max() this time.
+Finally, print both the observations lily and tom.
+```
+```{r}
+# Finish the read.delim() call
+hotdogs <- read.delim("/Users/zhouwenxiao/Desktop/Datacamp-R/Importing & Cleaning Data with R/Data for Introduction/hotdogs.txt", header = FALSE, col.names = c("type", "calories", "sodium"))
+# Select the hot dog with the least calories: lily
+lily <- hotdogs[which.min(hotdogs$calories), ]
+# Select the observation with the most sodium: tom
+tom <- hotdogs[which.max(hotdogs$sodium), ]
+# Print lily and tom
+lily
+tom
+```
 
+(4)Column classes:
 
+Specify the column types or column classes of the resulting data frame. You can do this by setting the colClasses argument to a vector of strings representing classes:
+```
+read.delim("my_file.txt", 
+           colClasses = c("character",
+                          "numeric",
+                          "logical"))
+```
+```{r}
+# Previous call to import hotdogs.txt
+hotdogs <- read.delim("/Users/zhouwenxiao/Desktop/Datacamp-R/Importing & Cleaning Data with R/Data for Introduction/hotdogs.txt", header = FALSE, col.names = c("type", "calories", "sodium"))
+
+# Display structure of hotdogs
+str(hotdogs)
+
+# Edit the colClasses argument to import the data correctly: hotdogs2
+hotdogs2 <- read.delim("/Users/zhouwenxiao/Desktop/Datacamp-R/Importing & Cleaning Data with R/Data for Introduction/hotdogs.txt", header = FALSE, 
+            col.names = c("type", "calories", "sodium"),
+            colClasses =c("factor","NULL","numeric"))
+# Display structure of hotdogs2
+str(hotdogs2)
+```
+
+**read.table() is the main function \ read.csv()=wrapper for CSV \ read.delim()=wrapper for tab-delimited files**
+
+read.csv, defaults: header=TRUE, sep=","
+```
+i.e. read.table("states.csv",header=TRUE,sep=",",stringsAsFactors=FALSE) equivalent to 
+read.table("states.csv",stringsAsFactors=FALSE)
+```
+read.delim, defaults: header=TRUE, sep="\t"
+```
+i.e. read.table("states.txt",header=TRUE,sep='\t',stringsAsFactors=FALSE) equivalent to 
+read.delim("states.txt",stringsAsFactors=FALSE)
+```
+
+If you have a look at the documentation of read-dot-table, read.csv2 and read.delim2 are two functions exist to deal with regional differences in representing numbers.
+You'll notice that the states_nay use commas for decimal points, as opposed to the dot for states_aye-dot-csv. This means that they can't use the comma as the field-delimiter anymore, they need a semicolon.
 
 
 

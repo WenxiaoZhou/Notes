@@ -733,5 +733,83 @@ emails[hits]
 ```
 
 
+Since `grep()` and `grepl()` simply check whether a regular expression could be matched with a character vector, `sub()` and `gsub()` take one step further: \
+you can specify a `replacement` argument
+```{r}
+# The emails vector has already been defined for you
+emails <- c("john.doe@ivyleague.edu", "education@world.gov", "global@peace.org",
+            "invalid.edu", "quant@bigdatacollege.edu", "cookie.monster@sesame.tv")
+
+# Use sub() to convert the email domains to datacamp.
+sub(pattern='@.*\\.edu$',replacement='@datacamp.edu',x=emails)
+```
+
+```
+New regular expressions:
+
+.*: A usual suspect! It can be read as "any character that is matched zero or more times".
+\\s: Match a space. The "s" is normally a character, escaping it (\\) makes it a metacharacter.
+[0-9]+: Match the numbers 0 to 9, at least once (+).
+([0-9]+): The parentheses are used to make parts of the matching string available to define the replacement. 
+The \\1 in the replacement argument of sub() gets set to the string that is captured by the regular expression [0-9]+.
+```
+
+```{r}
+#Example
+awards <- c("Won 1 Oscar.",
+  "Won 1 Oscar. Another 9 wins & 24 nominations.",
+  "1 win and 2 nominations.",
+  "2 wins & 3 nominations.",
+  "Nominated for 2 Golden Globes. 1 more win & 2 nominations.",
+  "4 wins & 1 nomination.")
+
+sub(".*\\s([0-9]+)\\snomination.*$", "\\1", awards)
+```
+*Can you explain why all of this happened? *\
+*The ([0-9]+) selects the entire number that comes before the word “nomination” in the string, and the entire match gets replaced by this number because of the \\1 that reference to the content inside the parentheses.*
+
+
+Times & Dates
+```{r}
+today<-Sys.Date()
+today
+class(today)
+now<-ys.time()
+now
+class(now)
+#The important class here is POSIXct. Apart from providing rich functionality for calculus and formatting, this class makes sure that the dates and times in R are compatible across different operating systems, according to the POSIX standard.
+```
+
+```{r}
+#create a date objects
+#by default
+my_date<-as.Date("1971-05-14")
+my_date
+#setting the date format
+my_date<-as.Date("1971-14-05",format="%Y-%d-%m")
+my_date
+#create POSIXct objects
+my_time<-as.POSIXct("1971-05-14 11:25:15")
+```
+
+Date can perform calculation.
+```{r}
+my_date2<-as.Date("1998-09-29")
+my_date2-my_date
+
+my_time2<-as.POSIXct('1974-07-14 21:11:55 CET')
+my_time2-my_time
+```
+
+Under the hood:
+A Date object is simply a more advanced representation of the number of days since the first of January in 1970. 
+```{r}
+my_date<-as.Date('1997-06-01')
+unclass(my_date)
+my_time<-as.POSIXct('1997-07-01')
+unclass(my_time)
+```
+
+Dedicated R packages: `lubridate`, `zoo`, `xts`
 
 

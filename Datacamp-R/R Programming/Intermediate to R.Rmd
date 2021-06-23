@@ -875,7 +875,7 @@ format(time2,'%I:%M %p')
 ```
 ```{r}
 # Create vector pizza
-pizza <- c("2021-06-05","2021-06-07","2021-06-12","2021-06-18","2021-06-23")
+pizza <- as.Date(c("2021-06-05","2021-06-07","2021-06-12","2021-06-18","2021-06-23"),format="%Y-%m-%d")
 # Create differences between consecutive pizza days: day_diff
 day_diff<-diff(pizza)
 #average diff

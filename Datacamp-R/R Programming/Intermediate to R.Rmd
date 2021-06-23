@@ -774,7 +774,7 @@ Times & Dates
 today<-Sys.Date()
 today
 class(today)
-now<-ys.time()
+now<-Sys.time()
 now
 class(now)
 #The important class here is POSIXct. Apart from providing rich functionality for calculus and formatting, this class makes sure that the dates and times in R are compatible across different operating systems, according to the POSIX standard.
@@ -811,5 +811,90 @@ unclass(my_time)
 ```
 
 Dedicated R packages: `lubridate`, `zoo`, `xts`
+
+Create and format dates:
+```
+The character string has to obey a format that can be defined using a set of symbols:
+%Y: 4-digit year (1982)
+%y: 2-digit year (82)
+%m: 2-digit month (01)
+%d: 2-digit day of the month (13)
+%A: weekday (Wednesday)
+%a: abbreviated weekday (Wed)
+%B: month (January)
+%b: abbreviated month (Jan)
+```
+
+```{r}
+# Definition of character strings representing dates
+str1 <- "May 23, '96"
+str2 <- "2012-03-15"
+str3 <- "30/January/2006"
+# Convert the strings to dates: date1, date2, date3
+date1 <- as.Date(str1, format = "%b %d, '%y")
+date2<-as.Date(str2,format='%Y-%m-%d')
+date3<-as.Date(str3,format='%d/%b/%Y')
+
+#Convert dates to formatted strings
+#Extract useful information from the dates as character strings using format(). From the first date, select the weekday. From the second date, select the day of the month. From the third date, you should select the abbreviated month and the 4-digit year, separated by a space.
+format(date1, "%A")
+format(date2,'%d')
+format(date3,'%b %Y')
+```
+
+
+Create and format times:
+```
+Similar to working with dates, you can use as.POSIXct() to convert from a character string to a POSIXct object, and format() to convert from a POSIXct object to a character string.
+
+Symbols:
+%H: hours as a decimal number (00-23)
+%I: hours as a decimal number (01-12)
+%M: minutes as a decimal number
+%S: seconds as a decimal number
+%T: shorthand notation for the typical format %H:%M:%S
+%p: AM/PM indicator
+
+*For a full list of conversion symbols, consult the strptime documentation in the console: ?strptime*
+
+*as.POSIXct() uses a default format to match character strings. In this case, it's %Y-%m-%d %H:%M:%S*
+```
+
+```{r}
+# Definition of character strings representing times
+str1 <- "May 23, '96 hours:23 minutes:01 seconds:45"
+str2 <- "2012-3-12 14:23:08"
+
+# Convert the strings to POSIXct objects: time1, time2
+time1 <- as.POSIXct(str1, format = "%B %d, '%y hours:%H minutes:%M seconds:%S")
+time2<-as.POSIXct(str2,format="%Y-%m-%d %H:%M:%S")
+
+# Convert times to formatted strings
+format(time1,'%M')
+format(time2,'%I:%M %p')
+```
+```{r}
+# Create vector pizza
+pizza <- c("2021-06-05","2021-06-07","2021-06-12","2021-06-18","2021-06-23")
+# Create differences between consecutive pizza days: day_diff
+day_diff<-diff(pizza)
+#average diff
+mean(day_diff)
+```
+
+```{r}
+astro<-c("20-Mar-2015","25-Jun-2015","23-Sep-2015","22-Dec-2015")
+meteo<-c("March 1, 15","June 1, 15","September 1, 15","December 1, 15")
+names(astro)<-c("spring","summer","fall","winter")
+names(meteo)<-c("spring","summer","fall","winter")
+# Convert astro to vector of Date objects: astro_dates
+astro_dates<-as.Date(astro,format='%d-%b-%Y')
+# Convert meteo to vector of Date objects: meteo_dates
+meteo_dates<-as.Date(meteo,format="%B %d, %y")
+# Calculate the maximum absolute difference between astro_dates and meteo_dates
+print(max(abs(astro_dates-meteo_dates)))
+```
+
+
 
 

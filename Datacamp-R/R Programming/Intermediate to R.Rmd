@@ -206,7 +206,7 @@ for (li in linkedin) {
 
 Building a for loop from scratch:
 
-We already went ahead and defined a variable rquote. This variable has been split up into a vector that contains separate letters and has been stored in a vector chars with the strsplit() function.
+We already went ahead and defined a variable rquote. This variable has been split up into a vector that contains separate letters and has been stored in a vector chars with the `strsplit()` function.
 
 Can you write code that counts the number of r's that come before the first u in rquote?
 
@@ -233,9 +233,504 @@ rcount
 
 # Functions
 
+Black Box Principle:
+
+Input--Black Box--Output
+
+Function documentation: `help(function_name)` or `?sd`
+
+R matches function arguments by position or by name, and finally, some function arguments can have a default value, which can be overridden. If you do not specify the value of an argument that has no default, typically an error will occur.
+
+```
+Useful Trick \
+`args() function` \
+This is a function to learn about the arguments of a function without having to read through the entire documentation. 
+```
+
+(1) Introduction to Functions
+```{r}
+# Consult the documentation on the mean() function
+help(mean)
+# Inspect the arguments of the mean() function
+args(mean)
+```
+
+```{r}
+# mean(x,trim=0,na.rm=FALSE,...) as the default S3 method
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+# Calculate the mean of the sum
+avg_sum<-mean(linkedin+facebook) 
+# Calculate the trimmed mean of the sum
+avg_sum_trimmed<-mean(linkedin+facebook,trim=0.2)
+
+# Inspect both new variables
+avg_sum
+avg_sum_trimmed
+
+# The advanced usage of the mean function
+# The linkedin and facebook vectors have already been created for you
+linkedin1 <- c(16, 9, 13, 5, NA, 17, 14)
+# Basic average of linkedin
+mean(linkedin1)
+# Advanced average of linkedin
+mean(linkedin1,na.rm=TRUE)
+```
+
+Call `abs()` inside `mean()` to calculate the Mean Absolute Deviation
+
+
+(2) Writing Functions
+Solve a particular, well-defined problem; Black box principle; If it works, inner workings less important.
+```
+my_fun<-function(arg1,arg2){
+       body
+}
+```
+
+```{r}
+# Define the function hello()
+hello<-function(){
+    print("Hi there!")
+    return(TRUE)
+}
+# Call the function hello()
+hello()
+```
+```{r}
+# Define pow_two() function, with print_info argument equals true as default
+pow_two <- function(x, print_info = TRUE) {
+  y <- x ^ 2
+  if (print_info) {
+    print(paste(x, "to the power two equals", y))
+  }
+  return(y)
+}
+# Some calls of the pow_two() function
+pow_two(5)
+pow_two(5, FALSE)
+pow_two(5, TRUE)
+```
+
+
+Function scoping:
+
+Variables that are defined inside a function are not accessible outside that function.\
+```
+pow_two <- function(x) {
+  y <- x ^ 2
+  return(y)
+}
+pow_two(4)
+y
+x
+```
+
+```{r}
+#Exercise: Define a function to return the view counts
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# The interpret() can be used inside interpret_all()
+interpret <- function(num_views) {
+  if (num_views > 15) {
+    print("You're popular!")
+    return(num_views)
+  } else {
+    print("Try to be more visible!")
+    return(0)
+  }
+}
+
+# Define the interpret_all() function
+# views: vector with data to interpret
+# return_sum: return total number of views on popular days?
+interpret_all <- function(views, return_sum=TRUE) {
+  count <- 0
+  for (v in views) {
+    count=count+interpret(v)
+  }
+  if (return_sum) {
+  return(count)
+  } else {
+   return(NULL)
+  }
+}
+# Call the interpret_all() function on both linkedin and facebook
+interpret_all(linkedin)
+interpret_all(facebook)
+```
+
+
+(3) R Packages:
+
+Install package: `install.packages("package_name")`; CRAN: Comprehensive R Archive Network  
+
+Load package: `search()` \
+7 packages are attached by default \
+`library(package_name)`
+
+`require()` function is similar to `library()` function: it loads packages into your R session. The only difference appears when you're trying to oad a package that is not yet installed.
+
+If you use `library()` function directly, you will get an error; while use `require()` function, you only get a warning message.
+
+```{r}
+# Check out the currently attached packages again
+search()
+```
+
+
+Different ways to load a package
+
+The library() and require() functions are not very picky when it comes down to argument types: both `library(rjson)` and `library("rjson")` work perfectly fine for loading a package.
+
+**You have to load packages one at a time with `require()` and `library()`** \
+```
+Two ways to load a package:
+# Chunk 1
+library(data.table)
+require(rjson)
+
+# Chunk 2
+library("data.table")
+require(rjson)
+```
+
+
+# The apply family
+
+(1) lapply: 
+apply function over list or vector \
+function can return R objects of different classes \
+list necessary to store heterogeneous content \
+always return a list \
+```{r}
+#NYC: lapply()
+nyc<-list(pop=8405837,
+          boroughs=c('Manhattan','Bronx','Brooklyn','Queens','Staten Island'),
+          capital=FALSE)
+lapply(nyc,class)
+```
+```{r}
+#Cities: for 
+cities<-c("New York","Paris","London","Tokyo","Rio de Janeiro","Cape Town")
+lapply(cities,nchar)
+```
+```{r}
+cities<-c("New York","Paris","London","Tokyo","Rio de Janeiro","Cape Town")
+# unlist function help to return a vector
+unlist(lapply(cities,nchar))
+```
+
+For customized function:
+```{r}
+oil_prices<-list(2.37,2.49,2.18,2,22,2.47,2.32)
+multiple<-function(x,factor){
+  factor*x
+}
+result<-lapply(oil_prices,multiple,factor=3)
+str(result)
+unlist(result)
+```
+```{r}
+# Code from previous exercise:
+pioneers <- c("GAUSS:1777", "BAYES:1702", "PASCAL:1623", "PEARSON:1857")
+split <- strsplit(pioneers, split = ":")
+split_low <- lapply(split, tolower)
+
+# Write function select_first()
+select_first <- function(x) {
+  x[1]
+}
+# Apply select_first() over split_low: names
+names<-lapply(split_low,select_first)
+# Write function select_second()
+select_second<-function(x){
+  x[2]
+}
+# Apply select_second() over split_low: years
+years<-lapply(split_low,select_second)
+```
+
+**anonymous function in R** 
+Writing your own functions and then using them inside `lapply()`
+```{r}
+# Definition of split_low
+pioneers <- c("GAUSS:1777", "BAYES:1702", "PASCAL:1623", "PEARSON:1857")
+split <- strsplit(pioneers, split = ":")
+split_low <- lapply(split, tolower)
+
+# Generic select function
+select_el <- function(x, index) {
+  x[index]
+}
+# Use lapply() twice on split_low: names and years
+names<-lapply(split_low,select_el,index=1)
+years<-lapply(split_low,select_el,index=2)
+```
+
+
+(2) sapply: \
+When apply `sapply()` function, the result is a named vector, which contains the same information as the vector we obtained earlier using `unlist()` and `lapply()` together.
+
+```{r}
+# Cities: sapply()
+cities<-c("New York","Paris","London","Tokyo","Rio de Janeiro","Cape Town")
+first_and_last<-function(name){
+  name<-gsub(" ","",name)
+  letters<-strsplit(name,split="")[[1]]
+  c(first=min(letters),last=max(letters))
+}
+sapply(cities,first_and_last)
+```
+
+Comparison between `lapply()` function and `sapply()` function
+```{r}
+one<-c(3,7,9,6,-1)
+two<-c(6,9,12,13,5)
+three<-c(4,8,3,-1,-3)
+four<-c(1,4,7,2,-2)
+five<-c(5,7,9,4,2)
+six<-c(-3,5,8,9,4)
+seven<-c(3,6,9,4,1)
+temp<-list(one,two,three,four,five,six,seven)
+# Finish function definition of extremes_avg
+extremes_avg <- function(x) {
+  ( min(x) + max(x)) / 2
+}
+# Apply extremes_avg() over temp using sapply()
+sapply(temp,extremes_avg)
+# Apply extremes_avg() over temp using lapply()
+lapply(temp,extremes_avg)
+```
+```{r}
+# Apply `sapply()` funciton with return vectors
+# Create a function that returns min and max of a vector: extremes
+extremes <- function(x) {
+  c(min = min(x), max = max(x))
+}
+# Apply extremes() over temp with sapply()
+sapply(temp,extremes)
+# Apply extremes() over temp with lapply()
+lapply(temp,extremes)
+```
+```{r}
+# In some cases, sapply can't simplify
+# Definition of below_zero()
+below_zero <- function(x) {
+  return(x[x < 0])
+}
+# Apply below_zero over temp using sapply(): freezing_s
+freezing_s<-sapply(temp,below_zero)
+# Apply below_zero over temp using lapply(): freezing_l
+freezing_l<-lapply(temp,below_zero)
+
+# Are freezing_s and freezing_l identical?
+#identical(): Test Objects for Exact Equality
+identical(freezing_s,freezing_l)
+```
+
+**`sapply() doesn't simplify the list of `NULL's`. That's because the 'vector-version' of a list of NULL's would simply be a NULL, which is no longer a vector with the same length as the input.**
+
+
+(3) vapply:
+apply function over list or vector \
+explicitly sppecify output format \
+(However, when using vapply, you have to explicitly say what the type of the return value will be. In sapply, this is not required nor possible.)
+
+Comparison of `sapply()` and `vapply()`
+```{r}
+cities<-c("New York","Paris","London","Tokyo","Rio de Janeiro","Capge Town")
+sapply(cities,nchar)
+#vapply(X,FUN,FUN.VALUE,...,USE.NAMES=TRUE)
+vapply(cities,nchar,numeric(1))
+```
+
+using the numeric() function, by setting FUN.VALUE to numeric(1), which tells the `vapply()` function that `nchar()` should return a single numerical value. The result is exactly the same as the `sapply()` function from before. However, this 'pre-specification' of FUN's return value makes `vapply()` a safer alternative to `sapply()`.
+
+**This little bit of extra work in defining the FUN.VALUES arguments has the benefit that you really have to think about what your function will return without blindly assuming that the `sapply()` function will handle every case for you! **
+
+```{r}
+#unique_letters()
+unique_letters<-function(name){
+  name<-gsub(" ","",name)
+  letters<-strsplit(name,split="")[[1]]
+  unique(letters)
+}
+cities<-c("New York","Paris","London","Tokyo","Rio de Janeiro","Capge Town")
+sapply(cities,unique_letters)
+#error in the below function
+#vapply(cities,unique_letters,character(5))
+```
+
+```{r}
+one<-c(3,7,9,6,-1)
+two<-c(6,9,12,13,5)
+three<-c(4,8,3,-1,-3)
+four<-c(1,4,7,2,-2)
+five<-c(5,7,9,4,2)
+six<-c(-3,5,8,9,4)
+seven<-c(3,6,9,4,1)
+temp<-list(one,two,three,four,five,six,seven)
+# Definition of basics()
+basics <- function(x) {
+  c(min = min(x), mean = mean(x), max = max(x))
+}
+vapply(temp,basics,numeric(3))
+```
+
+From sapply to vapply:
+
+```{r}
+# Convert to vapply() expression
+sapply(temp, max)
+vapply(temp, max,numeric(1))
+
+# Convert to vapply() expression
+sapply(temp, function(x, y) { mean(x) > y }, y = 5)
+vapply(temp, function(x, y) { mean(x) > y }, y = 5,logical(1))
+```
 
 
 
+# Utilities
+
+Useful functions: 
+
+(1)mathematical: `abs()`,`round()`,`sum()`,`mean()`
+
+(2)data structure: `seq()`,`rep()`,`sort()`
+```{r}
+rep(c(8,6,4,2),times=2)
+rep(c(8,6,4,2),each=2)
+```
+`unlist()`: flatten (possibly embedded) lists to produce a vector
+`str()`:display the structure of any R object
+
+(3)`is.*()`,`as.*()`
+
+(4)`append()`:concatenates the original vector and its reversed version to create a list of elements, double this vector's length
+```{r}
+#combination of seq() and rep()
+rep(seq(1, 7, by = 2), times = 7)
+
+li<-list(log=TRUE,
+         ch="hello",
+         int_vec=sort(rep(seq(8,2,by=-2),times=2)))
+str(append(li,rev(li)))
+str(rev(li))
+```
+
+```{r}
+# The linkedin and facebook lists have already been created for you
+linkedin <- list(16, 9, 13, 5, 2, 17, 14)
+facebook <- list(17, 7, 5, 16, 8, 13, 14)
+# Convert linkedin and facebook to a vector: li_vec and fb_vec
+li_vec<-unlist(linkedin)
+fb_vec<-unlist(facebook)
+# Append fb_vec to li_vec: social_vec
+social_vec<-append(li_vec,fb_vec)
+# Sort social_vec
+sort(social_vec,decreasing=TRUE)
+```
+
+
+Regular Expressions:
+
+Sequence of (meta) characters \
+Pattern existence \
+Pattern replacement \
+Pattern extraction \
+`grep()`,`grepl()` \
+`sub()`,`gsub()` \
+
+```{r}
+#grep, grepl, regexpr, gregexpr and regexec search for matches to argument pattern within each element of a character vector: they differ in the format of and amount of detail in the results.
+animals<-c("cat","moose","impala","ant","kiwi")
+#grepl(pattern=<regex>,x=<string>)
+grepl(pattern="a",x=animals)
+# ^ matches the empty string at the beginning of a line
+grepl(pattern='^a',x=animals)
+# $ matches the empty string at the end of a line
+grepl(pattern='a$',x=animals)
+```
+```{r}
+# For more regular expression
+?regex
+```
+
+
+Comparison of `grepl()` and `grep()` functions: \
+`grep()`: This function returns a vector of indices of the elements of x that yield a match.  \
+Compare the `grepl` command, that gives a vector of logicals, with the `grep` command, that gives the indices of the TRUE elements that the grepl function returns
+
+One way in which you could compare grep and grepl would be using the which() function
+
+```{r}
+animals<-c("cat","moose","impala","ant","kiwi")
+which(grepl(pattern="a",x=animals))
+grep(pattern="^a",x=animals)
+```
+
+
+`sub()`,`gsub()` functions:
+```{r}
+animals<-c("cat","moose","impala","ant","kiwi")
+#sub(pattern=<regex>,replacement=<str>,x=<str>)
+sub(pattern="a",replacement="o",x=animals)
+gsub(pattern="a",replacement="o",x=animals)
+```
+
+**sub() function only looks for the first match in the string, and if it finds it, replaces it with the replacement argument, and immediately stops looking. If you want to replace every single match of a pattern in a string with the replacement argument, you should try the gsub function instead**
+
+OR metacharacter or vertical bar: similar to the or operator for combining logicals.
+```{r}
+gsub(pattern="a|i",replacement="_",x=animals)
+```
+
+Summary:
+
+`grepl()`, which returns TRUE when a pattern is found in the corresponding character string. \
+
+`grep()`, which returns a vector of indices of the character strings that contains the pattern.
+```{r}
+# The emails vector has already been defined for you
+emails <- c("john.doe@ivyleague.edu", "education@world.gov", "dalai.lama@peace.org",
+            "invalid.edu", "quant@bigdatacollege.edu", "cookie.monster@sesame.tv")
+# Use grepl() to match for "edu"
+#Use grepl() to generate a vector of logicals that indicates whether these email addressess contain "edu". Print the result to the output.
+grepl(pattern="edu",x=emails)
+
+# Use grep() to match for "edu", save result to hits
+hits<-grep(pattern="edu",x=emails)
+# Subset emails using hits
+emails[hits]
+```
+
+```
+You can use the caret, **^**, and the dollar sign, **$** to match the content located in the start and end of a string, respectively. This could take us one step closer to a correct pattern for matching only the ".edu" email addresses from our list of emails. But there's more that can be added to make the pattern more robust:
+
+@, because a valid email must contain an at-sign.
+.*, which matches any character (.) zero or more times (*). Both the dot and the asterisk are metacharacters. You can use them to match any character between the at-sign and the ".edu" portion of an email address.
+\\.edu$, to match the ".edu" part of the email at the end of the string. The \\ part escapes the dot: it tells R that you want to use the . as an actual character.
+```
+
+```{r}
+#follow up the previous example
+# The emails vector has already been defined for you
+emails <- c("john.doe@ivyleague.edu", "education@world.gov", "dalai.lama@peace.org",
+            "invalid.edu", "quant@bigdatacollege.edu", "cookie.monster@sesame.tv")
+
+# Use grepl() to match for .edu addresses more robustly
+grepl(pattern='.*@.*\\.edu$',x=emails)
+# Use grep() to match for .edu addresses more robustly, save result to hits
+hits=grep(pattern='.*@.*\\.edu$',x=emails)
+# Subset emails using hits
+emails[hits]
+
+```
 
 
 

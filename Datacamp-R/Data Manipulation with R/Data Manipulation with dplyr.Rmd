@@ -1,0 +1,327 @@
+---
+title: "Data Manipulation with R"
+author: "Wenxiao Zhou"
+date: "4/25/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Manipulation with dplyr
+
+**Transforming Data with dplyr**\
+&NewLine;
+```{r}
+#Understanding the data
+library(dplyr)
+help(glimpse) #within dplyr package
+setwd("/Users/zhouwenxiao/Desktop/Data Manipulation with R")
+counties<-readRDS("counties.rds")
+#take a look at data using glimpse() function
+glimpse(counties)
+```
+```{r}
+#select columns
+#select 'state','county','population','poverty' columns
+counties %>% select(state,county,population,poverty)
+```
+
+The `arrange()` verb sorts your data based on one or more variables. You can start with your counties selected variable, then the `pipe operator`, then `arrange()`. Inside the parentheses, put population to specify the variable you want to sort by. 
+```{r}
+#arrange observations
+#sort the selected table using `public_work` variable in descending order
+counties_selected <- counties %>%
+  select(state, county, population, private_work, public_work, self_employed)
+counties_selected %>%
+  arrange(desc(public_work))
+```
+
+You can use the `filter()` verb to extract only particular observations from a dataset, based on a condition. Recall that after your first verb, you can add a pipe operator, then add another verb. You can pipe any number of verbs together to transform your dataset. For example, after the `arrange()`, you could add filter state equals equals quote New York to get only counties in the state of New York. Notice that the observations are filtered, but they're still sorted by population thanks to your arrange.
+
+```{r}
+#filter for conditions
+#find only the counties that have a population above one million(1000000)
+#and also only state of California
+counties_selected %>%
+  filter(population>1000000,state=='California')
+#Finally, you can combine multiple conditions together in a filter
+```
+```{r}
+#filter & arrange together
+counties_selected %>%
+  # Filter for Texas and more than 10000 people
+  filter(state=="Texas", population>10000) %>%
+  # Sort in descending order of private_work
+  arrange(desc(private_work))
+```
+
+#Use `mutate()` verb to add new variables or change existing variables.
+```{r}
+#calculate the number of government employees
+#within the counties data frame, unemployment is a percentage variable, same 
+#as public_work variable
+counties_selected<-counties %>%
+    select(state, county, population, public_work)
+counties_selected %>% 
+    # add a new column public_workers with the number of people employed in public work
+   mutate(public_workers=population*public_work/100) %>%
+  # sort in descending order of the public_workers column
+   arrange(desc(public_workers))
+```
+```{r}
+#calculate the percentage of women in a county
+counties_selected <- counties %>%
+  # Select the columns state, county, population, men, and women
+  select(state,county,population,men,women)
+counties_selected %>%
+   mutate(proportion_women=women/population)
+```
+
+Now, we can combine all four verbs together 
+`select()`,`mutate()`,`filter()`,`arrange()`
+```{r}
+counties %>%
+  # Select the five columns 
+   select(state,county,population,men,women) %>%
+  # Add the proportion_men variable
+  mutate(proportion_men=men/population) %>%
+  # Filter for population of at least 10,000
+  filter(population>=10000) %>%
+  # Arrange proportion of men in descending order
+  arrange(desc(proportion_men))
+```
+
+
+
+**Aggregating Data**\
+&NewLine;
+To `filter` or `sort` for observations you're interested in, and to `add new variables with the mutate verb` are the work at the same level as the initial data, where every observation corresponds to one US county.\
+Now you need more about the summary, which is called as aggregate data: to take many observations and summarize them into one. This is a common data science strategy for making data manageable and interpreted.
+
+```{r}
+#counting by region
+#Finding the number of counties in each region
+counties_selected <- counties %>%
+  select(county, region, state, population, citizens)
+counties %>%
+   count()
+counties %>% 
+  count(state)
+counties_selected %>%
+  count(region,sort=TRUE)
+```
+```{r}
+#Count the number of counties in each state, weighted based on the `citizens` column, and sorted in descending order
+counties_selected <- counties %>%
+  select(county, region, state, population, citizens) %>%
+  count(state,wt=citizens,sort=TRUE)
+counties_selected
+```
+
+Mutating and counting\
+Use multiple verbs together to answer increasing complicated questions of your data.
+```{r}
+#walk: which offers a percentage of people in each county that walk to work, to add a new column and count based on it
+counties_selected <- counties %>%
+  select(county, region, state, population, walk)
+counties_selected %>%
+  # Add population_walk containing the total number of people who walk to work 
+  mutate(population_walk = population * walk / 100) %>%
+  # Count weighted by the new column, sort in descending order
+  count(state, wt = population_walk, sort = TRUE)
+```
+
+`count()` is a special case of a more general set of verbs: `group_by() and summarize()`.\
+The `summarize()` verb takes many observations and turns them into one observation.\
+&Newline;
+&Newline;
+
+```{r}
+#summarizing
+counties_selected <- counties %>%
+  select(county, population, income, unemployment)
+#summarize the counties dataset to find the following columns:
+#min_population (smallest population)
+#max_unemployment (maximum unemployment)
+#average_income (mean of the income variable)
+counties_selected %>%
+  # Summarize to find minimum population, maximum unemployment, and average income
+  summarize(min_population=min(population),
+            max_unemployment=max(unemployment),
+            average_income=mean(income))
+```
+```{r}
+#summarize by state
+#land_area: shows the land area in square miles
+#summarize both population and land area by state, and
+#find the density (in people per square miles)
+counties_selected <- counties %>%
+  select(state,county, population, land_area)
+counties_selected %>%
+  group_by(state) %>%
+  summarize(total_area = sum(land_area),
+            total_population = sum(population)) %>%
+  # Add a density column (people per square mile)
+  mutate(density=total_population/total_area) %>%
+  # Sort by density in descending order
+  arrange(desc(density))
+```
+```{r}
+#summarize by state and region
+counties_selected <- counties %>%
+  select(region, state, county, population)
+counties_selected %>%
+  # Group and summarize to find the total population
+  group_by(region, state) %>%
+  summarize(total_pop = sum(population)) %>%
+# Calculate the average_pop and median_pop columns 
+  # Notice that the tibble is still grouped by region, use another 
+  # summarize() step to add more columns under this grouping
+
+  #the average state population in each region
+  #the median state population in each region 
+  summarize(average_pop=mean(total_pop),
+            median_pop=median(total_pop))
+#The final result includes four regions' average population and median population by two columns
+```
+
+
+`top_n()` is helpful to keep the most extreme observations from each group\
+Just like `summarize()`, top_n() operates on  a grouped table. The function takes two arguments: the number of observations you want from each group\
+               the column you want to weight by\
+`top_n()` is often used when creating graphs, where we're interested in pulling the extreme examples to include in the visualization.               
+```{r}
+#selecting a county from each region
+counties_selected <- counties %>%
+  select(region, state, county, metro, population, walk)
+#Find the county in each region with the highest percentage of citizens who walk to work
+counties_selected %>%
+  group_by(region) %>%
+  top_n(1,walk)
+```
+```{r}
+#finding the highest income state in each region
+#group_by(), summarize(), top_n()
+counties_selected <- counties %>%
+  select(region, state, county, population, income)
+counties_selected %>%
+  group_by(region, state) %>%
+  # Calculate average income
+  summarize(average_income=mean(income)) %>%
+  # Find the highest income state in each region
+  top_n(1,average_income)
+# From our results, we can see that the New Jersey in the Northeast is the state with the highest average_income of 73014.
+```
+
+When you group by multiple columns and then summarize, it's important to remember that the summarize "peels off" one of the groups, but leaves the rest on.\
+For example, if you group_by(X, Y) then summarize, the result will still be grouped by X
+```{r}
+#Using summarize, top_n,count together
+#Answer the following questions:
+# In How many states do more people live in metro areas than non-metro areas?
+counties_selected <- counties %>%
+  select(state, metro, population)
+counties_selected %>%
+  # Find the total population for each combination of state and metro
+  group_by(state, metro) %>%
+  summarize(total_pop = sum(population)) %>%
+  # Extract the most populated row for each state
+  top_n(1, total_pop) %>%
+  # Count the states with more people in Metro or Nonmetro areas
+  ungroup()   %>%
+  # (firstly, since most data operations are done on groups defined by variables. group_by() takes an existing table and converts it into a grouped tbl where operations are performed "by group". ungroup() removes grouping.)
+  count(metro)
+```
+
+
+**Selecting and Transforming Data**\
+```{r}
+#using a colon (:) can select variables that are consecutive
+counties %>%
+  # Select state, county, population, and industry-related columns
+  select(state,county,population,professional:production) %>%
+  # Arrange service in descending order 
+  arrange(desc(service))
+```
+```{r}
+#use starts_with(), ends_with(), which finds the columns that end with a particular string
+counties %>%
+  # Select the state, county, population, and those ending with "work"
+  select(state,county,population,ends_with("work")) %>%
+  # Filter for counties that have at least 50% of people engaged in public work
+  filter(public_work>=50)
+```
+
+`rename()` verb & `select()` verb:
+Notice the difference between select and rename. In select you need to name all the columns you want to keep along with renaming one or more of them. With rename, you can just pick one column whose name you want to change. The verb you choose will depend on your position within an analysis.\
+```{r}
+counties %>%
+   select(state,county,population,unemployment_rate=unemployment)
+counties %>% 
+   select(state,county,population,unemployment)  %>%
+   rename(unemployment_rate=unemployment)
+```
+```{r}
+#renaming a column after counting 
+counties %>%
+  # Count the number of counties in each state
+  count(state) %>%
+  # Rename the n column to num_counties
+  rename(num_counties=n)
+#renaming a column as part of a select
+counties %>%
+  # Select state, county, and poverty as poverty_rate
+ select(state,county,poverty_rate=poverty)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

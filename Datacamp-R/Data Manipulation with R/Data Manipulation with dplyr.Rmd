@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #Understanding the data
 library(dplyr)
 help(glimpse) #within dplyr package
-setwd("/Users/zhouwenxiao/Desktop/Data Manipulation with R")
+setwd("/Users/zhouwenxiao/Desktop/Notes-main/Datacamp for R/Data Manipulation with R")
 counties<-readRDS("counties.rds")
 #take a look at data using glimpse() function
 glimpse(counties)
@@ -277,14 +277,116 @@ counties %>%
 ```
 
 
+`transmute()` as a combination of select & mutate\
+It returns a subset of columns that are transformed and changed.\
+
+&Newline;
+A summary of four verbs for changing and keeping variables:\
+`select()`:can't change values, keeps only specified variables\
+`rename()`:can't change values, keeps other variables\
+`mutate()`:can change values, keeps other variables\
+`transmute()`:can change values, keeps only specified variables\
+
+(If you would like to calculate new columns while dropping other columns, use `transmute()`)
+```{r}
+#Using transmute
+counties %>%
+  # Keep the state, county, and populations columns, and add a density column
+  transmute(state,county,population,density=population/land_area) %>%
+  # Filter for counties with a population greater than one million 
+  filter(population>1000000) %>%
+  # Sort density in ascending order 
+  arrange(density)
+```
+```{r}
+#Choosing among the four verbs
+# Change the name of the unemployment column
+counties %>%
+  rename(unemployment_rate = unemployment)
+# Keep the state and county columns, and the columns containing poverty
+counties %>%
+  select(state, county, contains("poverty"))
+# Calculate the fraction_women column without dropping the other columns
+counties %>%
+  mutate(fraction_women = women / population)
+# Keep only the state, county, and employment_rate columns
+counties %>%
+  transmute(state, county, employment_rate = employed / population)
+```
 
 
 
+**Case Study: The babynames Data Set**\
+```{r}
+#Understanding the data
+babynames<-readRDS("babynames.rds")
+#take a look at data using glimpse() function
+glimpse(babynames)
+babynames %>%
+  # Filter for the year 1990
+  filter(year==1990) %>%
+  # Sort the number column in descending order 
+  arrange(desc(number))
+```
+```{r}
+#using top_n with babynames to find the most common name in each year
+babynames %>%
+  group_by(year) %>%
+  top_n(1,number)
+selected_names <- babynames %>%
+  # Filter for the names Steven, Thomas, and Matthew 
+  filter(name %in% c('Steven','Thomas','Matthew'))
+library(ggplot2)
+selected_names <- babynames %>%
+  # Filter for the names Steven, Thomas, and Matthew 
+  filter(name %in% c("Steven", "Thomas", "Matthew"))
+
+# Plot the names using a different color for each name
+ggplot(selected_names, aes(x = year, y = number, color = name)) +
+  geom_line()
+```
 
 
+Grouped mutate:\
+Just like `group by` and summarize work well together, `group by and mutate` are a great pair. The `group by` tells dplyr that we only want to add up within each year. Then, as a `mutate`, it creates a new column called year-underscore-total, with the total number of people born in that year in this dataset.\
 
+&NewLine;
+Notice from the header that the table is still grouped by year, which could affect other verbs you want to use in the future. In particular, it can make other mutates or filters slower to run, especially if there are a lot of groups in the table.
 
+```{r}
+# Calculate the fraction of people born each year with the same name
+babynames %>%
+  group_by(year) %>%
+  mutate(year_total = sum(number)) %>%
+  ungroup() %>%
+  mutate(fraction = number / year_total) %>%
+  # Find the year each name is most common
+  group_by(name) %>%
+  top_n(1,fraction)
+```
 
+Adding the total and maximum for each name:\
+Divide each name by the maximum for that name, which means every name will peak at 1\
+```{r}
+babynames %>%
+  # Add columns name_total and name_max for each name
+  group_by(name) %>%
+  # name_total, with the sum of the number of babies born with that name in the entire dataset
+  # name_max, with the maximum number of babies born in any year
+  mutate(name_total=sum(number),
+         name_max=max(number))
+```
+```{r}
+babynames %>%
+  # Add columns name_total and name_max for each name
+  group_by(name) %>%
+  mutate(name_total = sum(number),
+         name_max = max(number)) %>%
+  # Ungroup the table 
+  ungroup() %>%
+  # Add the fraction_max column containing the number by the name maximum 
+  mutate(fraction_max=(number/name_max))
+```
 
 
 

@@ -1,0 +1,139 @@
+---
+title: "Cheetsheets for R functions (Data Analyst)"
+author: "Wenxiao Zhou"
+date: '2022-06-25'
+output: html_document
+---
+
+## I. Structures of Data
+# Calcus
+`%*%` -- use for matrix multiplication\
+`*` -- use for matrix's or other objects' elements multiplication\
+`%%` -- modulo\
+`^` -- exponentiation\
+
+&NewLine;
+&NewLine;
+
+# Basic functions
+`class(variable_name)`-- check data type\
+`names(variable_name)<-c(...)`-- name a vector\
+`rownames(my_matrix)<-row_names_vector`-- name the row name of matrix\
+`colnames(my_matrix)<-col_names_vector`--name the column name of matrix\
+`colSums (x, na.rm = FALSE, dims = 1)/rowSums (x, na.rm = FALSE, dims = 1)` -- calculate sum of row/column\
+`colMeans(x, na.rm = FALSE, dims = 1)\rowMeans(x, na.rm = FALSE, dims = 1)` -- calculate mean of row/column\
+`cbind()` -- Add a column for the matrix\
+`rbind()` -- Add a row for the matrix\
+`ls()` -- return the names of the objects in a matrix\
+`levels()` -- change the order of factor levels\
+`head()/tail()` -- have a quick look at the data set front/end\
+`str()` -- look at the structure of the data set\
+`subset(data_frame_name,subset=condition)` -- subset from a data frame by some conditions\
+`order()` -- provide the ranked position of each element within a vector\
+`sort()` -- sort the vector in an ascending order\
+`rank()` -- gives the respective rank of the numbers present in the vector\
+```
+sort(c(3,1,2,5,4))<-c(1,2,3,4,5)
+rank(c(3,1,2,5,4))<-c(3,1,2,5,4)
+order(c(3,1,2,5,4))<-c(2,3,1,5,4)
+```
+
+&NewLine;
+&NewLine;
+
+# Define structures
+`matrix(data=NA,nrow=1,ncol=1,byrow=FALSE,dimnames=NULL)` -- Matrix definition\
+`factor(factor_name,order=TRUE,levels=c('lev1','lev2',...))` -- Factor definition\
+`data.frame(vec1,vec2,...)` -- Data Frame definition\
+`list(comp1,comp2,...)` -- List definition (gather different types of objects under one name as an ordered way, including matrices, vectors, data frames, lists, etc.)
+```
+To select one variable from a list:
+list_name[["var_name"]]
+To select one element from a list:
+list_name[["var_name"]][i]
+```
+
+&NewLine;
+&NewLine;    
+&NewLine;
+&NewLine;  
+
+
+## II. Tidyverse & dplyr
+# Tidyverse Intro
+
+
+# dplyr package
+`%>%` -- pipe, take whatever is before it and feed it into the next step\
+`glimpse()` -- have a quick look at large dataset rows and columns\
+`filter()` -- filter on dataset with some conditions\
+
+&NewLine;
+```
+Special use of filter:
+selected_names <- babynames %>%
+  # Filter for the names Steven, Thomas, and Matthew 
+  filter(name %in% c('Steven','Thomas','Matthew'))
+```
+`select()` -- select columns from a dataset\
+
+&NewLine;
+```
+Several ways to select variables:
+(1)counties_selected <- counties %>%
+  select(state, metro, population)
+(2)counties %>%
+     select(state,county,population,professional:production)
+(3)counties %>%
+  select(state,county,population,ends_with("work")) 
+(4)counties %>%
+     #rename + select
+   select(state,county,population,unemployment_rate=unemployment)
+(5)counties %>%
+  select(state, county, contains("poverty"))
+```
+
+&NewLine;
+`rename(new_name=old_name)` -- rename the variable\
+`arrange(desc(var_name))/arrange(var_name)` -- arrange the whole dataset by the variable in descending order/ ascending order\
+`mutate()` -- change a variable in the dataset and create a new variable\
+`group_by(var_name)` -- subgroup data by certain variable(s), it is usefue to use with aggregated function\
+`summarize()` -- aggregate by group or by whole dataset\
+`ungroup()` -- recover the data into default ungroup format
+`count(var_name,sort=TRUE)` -- count the numbers basing on the var_name or the whole dataset\
+`top_n(num,var_name)` -- keep the most extreme observations from each group basing on the var_name value or the whole dataset\
+`transmute()` -- as a combination of `select` and `mutate`, it returns a subset of columns that are transformed and changed\
+
+&NewLine;
+&NewLine;
+
+```
+A summary of four verbs for changing and keeping variables:
+select():can’t change values, keeps only specified variables
+rename():can’t change values, keeps other variables
+mutate():can change values, keeps other variables
+transmute():can change values, keeps only specified variables
+```
+&NewLine;
+&NewLine;
+&NewLine;
+&NewLine;
+
+
+# ggplot2 Plots
+(1)Scatterplot -- `ggplot(data,aes(x=x_axis,y=y_axis,color=var_name,size=var_name)) + geom_point()`\
+(2)`scale_x_log10()` -- logarithmic scale with 10, it is useful when the distribution of the variable is spanning several orders of magnitude\
+(3)`facet_wrap(~var_name)` -- divide plot into subplots to get one smaller graph for each categories\
+(4)`expand_limits(y=0)` -- ensure the plot's y-axis includes 0\
+(5)Bar plot --
+`ggplot(data,aes(x=x_axis,y=y_axis)) + geom_col()`\
+(6)Line plot --
+`ggplot(data,aes(x=x_axis,y=y_axis,color=var_name) + geom_line()`\
+(7)Histogram -- 
+`ggplot(data,aes(x=x_axis)) + geom_histogram(bins=50)`\
+(8)Box plot -- 
+`ggplot(data,aes(x=x_axis,y=axis)) + geom_boxplot()`\
+(9)`ggtitle(" ")` -- add a title to the ggplot\
+
+
+
